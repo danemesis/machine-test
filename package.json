@@ -54,7 +54,7 @@
   },
   "lint-staged": {
         "src/**/*.{ts,css,html}": [
-            "npm run lint"
+            "npm run lint -- --lint-file-patterns"
         ]
     },
   "husky": {
