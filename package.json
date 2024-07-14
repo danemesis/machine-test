@@ -53,10 +53,13 @@
     "typescript-eslint": "8.0.0-alpha.38"
   },
   "lint-staged": {
-        "src/**/*.{ts,css,html}": [
-            "npm run lint -- --lint-file-patterns"
-        ]
-    },
+    "**/*.ts": [
+      "eslint --fix"
+    ],
+    "*.{ts,scss,css,html,json,js}": [
+      "prettier --write"
+    ]
+  },
   "husky": {
     "hooks": {
       "pre-commit": "lint-staged"
