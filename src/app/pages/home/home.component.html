@@ -1,4 +1,6 @@
-<p-table [value]="products" [tableStyle]="{ 'min-width': '50rem' }">
+<p-table
+  [value]="(studies$ | async) ?? []"
+  [tableStyle]="{ 'min-width': '50rem' }">
   <ng-template pTemplate="header">
     <tr>
       <th>Code</th>
