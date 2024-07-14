@@ -1,8 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { AppComponent } from './app.component';
 
-import { TestScheduler } from 'rxjs/testing';
 import { throttleTime } from 'rxjs';
+import { TestScheduler } from 'rxjs/testing';
 
 const testScheduler = new TestScheduler((actual, expected) => {
   // asserting the two objects are equal - required
@@ -13,7 +13,7 @@ const testScheduler = new TestScheduler((actual, expected) => {
 
 // This test runs synchronously.
 it('generates the stream correctly', () => {
-  testScheduler.run((helpers) => {
+  testScheduler.run(helpers => {
     const { cold, time, expectObservable, expectSubscriptions } = helpers;
     const e1 = cold(' -a--b--c---|');
     const e1subs = '  ^----------!';
@@ -49,6 +49,8 @@ describe('AppComponent', () => {
     fixture.detectChanges();
 
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Hello, it is Machine Test project');
+    expect(compiled.querySelector('h1')?.textContent).toContain(
+      'Hello, it is Machine Test project'
+    );
   });
 });
