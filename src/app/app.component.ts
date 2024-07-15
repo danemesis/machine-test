@@ -4,7 +4,7 @@ import { RouterModule } from '@angular/router';
 import { AvatarModule } from 'primeng/avatar';
 import { MenubarModule } from 'primeng/menubar';
 import { TableModule } from 'primeng/table';
-import { NavbarComponent } from './shared/navbar/navbar.componen';
+import { NavbarComponent } from './containers/navbar/navbar.componen';
 
 @Component({
   selector: 'app-root',
