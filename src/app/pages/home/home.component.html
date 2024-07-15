@@ -1,25 +1,14 @@
-<p-table
-  [value]="(studies$ | async) ?? []"
-  [tableStyle]="{ 'min-width': '50rem' }">
-  <ng-template pTemplate="header">
-    <tr>
-      <th>nctId</th>
-      <th>briefTitle</th>
-      <th>organization</th>
-      <th>overallStatus</th>
-    </tr>
-  </ng-template>
+<p-card header="Legend">
+  <div class="flex items-center justify-center">
+    <p-knob class="cursor-pointer" [readonly]="true" [ngModel]="countDown$ | async" min="0" max="5" />
+    <p class="ml-2">
+      Once timer is complete highlighted and animated study will be replaced
+    </p>
+  </div>
+</p-card>
 
-  <ng-template pTemplate="body" let-study>
-    <tr>
-      <td>{{ study.protocolSection?.identificationModule?.nctId }}</td>
-      <td>{{ study.protocolSection?.identificationModule?.briefTitle }}</td>
-      <td>
-        {{
-          study.protocolSection?.identificationModule?.organization?.fullName
-        }}
-      </td>
-      <td>{{ study.protocolSection?.statusModule?.overallStatus }}</td>
-    </tr>
-  </ng-template>
-</p-table>
+<div class="mt-2 flex items-center justify-center">
+  <app-studies [studies]="(studies$ | async) ?? []" [studyScheduledForUpdate]="studyScheduledForUpdate$ | async"
+    (setFavorite)="clinicalTrialFavoriteService.setFavorite($event)"
+    (removeFavorite)="clinicalTrialFavoriteService.removeFavorite($event)" />
+</div>

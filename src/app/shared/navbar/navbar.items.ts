@@ -8,12 +8,12 @@ export enum APP_NAVIGATION {
 export const NAVBAR_ITEMS: MenuItem[] = [
   {
     label: 'Home',
-    url: APP_NAVIGATION.Home,
+    link: APP_NAVIGATION.Home,
     icon: 'pi pi-home',
   },
   {
     label: 'Favorites',
-    url: APP_NAVIGATION.Favorites,
+    link: APP_NAVIGATION.Favorites,
     icon: 'pi pi-star',
   },
 ];

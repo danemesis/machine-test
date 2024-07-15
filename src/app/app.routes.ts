@@ -15,6 +15,8 @@ export const routes: Routes = [
   {
     path: APP_NAVIGATION.Favorites,
     loadComponent: () =>
-      import('./pages/home/home.component').then(comp => comp.HomeComponent),
+      import('./pages/favorites/favorites.component').then(
+        comp => comp.FavoritesComponent
+      ),
   },
 ];

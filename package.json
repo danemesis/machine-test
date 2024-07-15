@@ -6,7 +6,7 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test",
+    "test": "ng test --browsers=ChromeHeadless",
     "test:cicd": "ng test --browsers=ChromeHeadless --watch=false",
     "lint": "ng lint",
     "codegen-trials-api:local": "npx openapi-typescript ./docs/ctg-oas-v2.yaml -o ./src/types/clinicaltrials.d.ts",
