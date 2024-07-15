@@ -1,11 +1,6 @@
 <p-card header="Legend">
   <div class="flex items-center justify-center">
-    <p-knob
-      class="cursor-pointer"
-      [readonly]="true"
-      [ngModel]="countDown$ | async"
-      min="0"
-      max="5" />
+    <p-knob class="cursor-pointer" [readonly]="true" [ngModel]="countDown$ | async" min="0" max="5" />
     <p class="ml-2">
       Once timer is complete highlighted and animated study will be replaced
     </p>
@@ -13,7 +8,7 @@
 </p-card>
 
 <div class="mt-2 flex items-center justify-center">
-  <app-studies
-    [studies]="(studies$$ | async) ?? []"
-    [studyScheduledForUpdate]="studyScheduledForUpdate$ | async" />
+  <app-studies [studies]="(studies$ | async) ?? []" [studyScheduledForUpdate]="studyScheduledForUpdate$ | async"
+    (setFavorite)="clinicalTrialFavoriteService.setFavorite($event)"
+    (removeFavorite)="clinicalTrialFavoriteService.removeFavorite($event)" />
 </div>

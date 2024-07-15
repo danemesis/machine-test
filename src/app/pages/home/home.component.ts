@@ -21,6 +21,7 @@ import {
 import { components } from '../../../types/clinicaltrials';
 import { StudiesListComponent } from '../../components/studies/studies.component';
 import { ClinicalTrialService } from '../../services/clinical-trials.service';
+import { ClinicalTrialFavoriteService } from '../../services/favorite.service';
 
 @Component({
   selector: 'app-home',
@@ -40,21 +41,32 @@ import { ClinicalTrialService } from '../../services/clinical-trials.service';
 })
 export class HomeComponent implements AfterViewInit {
   #clinicalTrialService = inject(ClinicalTrialService);
+  clinicalTrialFavoriteService = inject(ClinicalTrialFavoriteService);
+
   readonly #PAGE_SIZE = 10;
   readonly #UPDATE_TIMEOUT = 5_000;
 
-  studies$$ = new BehaviorSubject<components['schemas']['StudyList']>([]);
+  #studies$$ = new BehaviorSubject<components['schemas']['Study'][]>([]);
+  studies$ = this.#studies$$.asObservable().pipe(
+    map(studies =>
+      studies.map(study => ({
+        ...study,
+        favorite: this.clinicalTrialFavoriteService.isFavorite(study),
+      }))
+    )
+  );
 
-  #trigger$ = this.studies$$.pipe(
+  #trigger$ = this.#studies$$.pipe(
     filter(studies => studies.length > 0),
     take(1),
     switchMap(() => timer(0, this.#UPDATE_TIMEOUT)),
     shareReplay(1)
   );
 
+  /** Used to show a user that this study will be replaced with another one, random */
   studyScheduledForUpdate$ = this.#trigger$.pipe(
     switchMap((studyCount: number) =>
-      this.studies$$
+      this.#studies$$
         .asObservable()
         .pipe(
           map((studies): [number, components['schemas']['StudyList']] => [
@@ -66,17 +78,6 @@ export class HomeComponent implements AfterViewInit {
     map(
       ([studyCount, studies]: [number, components['schemas']['StudyList']]) => {
         const studyPositionBeingUpdated = studyCount % 10;
-        // console.log(
-        //   studyCount,
-        //   studyPositionBeingUpdated,
-        //   studies,
-        //   studies.some(
-        //     study => study.protocolSection?.identificationModule?.nctId
-        //   ),
-        //   studies[studyPositionBeingUpdated].protocolSection
-        //     ?.identificationModule?.nctId
-        // );
-
         return studies[studyPositionBeingUpdated];
       }
     ),
@@ -94,15 +95,24 @@ export class HomeComponent implements AfterViewInit {
   );
 
   ngAfterViewInit(): void {
+    // Get initial number of Clinical trials
     this.#clinicalTrialService
       .getStudies({
         pageSize: this.#PAGE_SIZE,
       })
-      .subscribe(studies => this.studies$$.next(studies));
+      .subscribe(studies => this.#studies$$.next(studies));
 
+    /** @TODO This is a bit complex and I would need to think extra on
+     * how I would separate this one.
+     *
+     * Idea of this is to:
+     * 1. Once we marked "row" that it is being updated (css styles are applied (UX))
+     * 2. Get next study (or fetch next batch of studies). In parallel,
+     * 3. Once this is done AND it is time to update the entry update the studies list (auto swapped it, gracefully).
+     */
     this.studyScheduledForUpdate$
       .pipe(
-        withLatestFrom(this.studies$$),
+        withLatestFrom(this.#studies$$),
         switchMap(([studyToUpdate, studies]) =>
           this.#clinicalTrialService
             .getNextStudy()
@@ -117,6 +127,7 @@ export class HomeComponent implements AfterViewInit {
               )
             )
         ),
+        /** @TODO @FIXME delay should be removed (= I need another trigger, timer shows 0?) */
         delay(0),
         switchMap(newUpdatedStudiesList =>
           this.#trigger$.pipe(
@@ -125,8 +136,7 @@ export class HomeComponent implements AfterViewInit {
             map(() => newUpdatedStudiesList)
           )
         )
-        // tap(v => console.log('newUpdatedStudiesList', v))
       )
-      .subscribe(studies => this.studies$$.next(studies));
+      .subscribe(studies => this.#studies$$.next(studies));
   }
 }

@@ -2,12 +2,12 @@ import { inject, Injectable, signal } from '@angular/core';
 import { map, of, tap } from 'rxjs';
 import { components } from '../../types/clinicaltrials';
 import { ApiClinicalTrialServices } from '../api/clinical-trial.service';
+import { ClinicalTrialFavoriteService } from './favorite.service';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable()
 export class ClinicalTrialService {
   #apiClinicalTrial = inject(ApiClinicalTrialServices);
+  #clinicalTrialFavoriteService = inject(ClinicalTrialFavoriteService);
 
   #nextPageToken = signal('');
   #cachedStudies = signal<components['schemas']['Study'][] | null>(null);
@@ -18,7 +18,9 @@ export class ClinicalTrialService {
         ({ nextPageToken }) =>
           nextPageToken && this.#nextPageToken.set(nextPageToken)
       ),
-      map(({ studies }) => studies)
+      map(({ studies }) =>
+        this.#clinicalTrialFavoriteService.markFavorites(studies)
+      )
     );
   }
 
@@ -31,12 +33,14 @@ export class ClinicalTrialService {
     return this.#apiClinicalTrial
       .getStudies({ pageSize: 10, pageToken: this.#nextPageToken() })
       .pipe(
-        map(({ studies, nextPageToken }) => {
-          if (nextPageToken) {
-            this.#nextPageToken.set(nextPageToken);
-          }
-
-          return this.#getOneAndCacheStudies(studies);
+        tap(
+          ({ nextPageToken }) =>
+            nextPageToken && this.#nextPageToken.set(nextPageToken)
+        ),
+        map(({ studies }) => {
+          return this.#getOneAndCacheStudies(
+            this.#clinicalTrialFavoriteService.markFavorites(studies)
+          );
         })
       );
   }
