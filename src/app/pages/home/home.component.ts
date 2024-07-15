@@ -1,7 +1,7 @@
+import { AsyncPipe } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { TableModule } from 'primeng/table';
-import { ClinicalTrialServices } from '../../services/clinical-trials.api.service';
-import { AsyncPipe } from '@angular/common';
+import { ClinicalTrialService } from '../../services/clinical-trials.service';
 
 @Component({
   selector: 'app-home',
@@ -13,9 +13,10 @@ import { AsyncPipe } from '@angular/common';
     //
   ],
   templateUrl: './home.component.html',
+  providers: [ClinicalTrialService],
 })
 export class HomeComponent {
-  studies$ = inject(ClinicalTrialServices).getStudies();
+  studies$ = inject(ClinicalTrialService).getStudies({ pageSize: 10 });
 
   products = [
     {

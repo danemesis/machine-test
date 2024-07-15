@@ -7,7 +7,9 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "lint": "ng lint"
+    "lint": "ng lint",
+    "codegen-trials-api:local": "npx openapi-typescript ./docs/ctg-oas-v2.yaml -o ./src/types/clinicaltrials.d.ts",
+    "codegen-trials-api:remote": "npx openapi-typescript https://clinicaltrials.gov/api/oas/v2 -o ./src/types/clinicaltrials.d.ts"
   },
   "private": true,
   "dependencies": {
@@ -46,6 +48,7 @@
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
     "lint-staged": "^15.2.7",
+    "openapi-typescript": "^7.0.2",
     "postcss": "^8.4.39",
     "postcss-import": "^16.1.0",
     "prettier": "^3.3.3",
