@@ -50,7 +50,9 @@ export class ClinicalTrialFavoriteService {
   }
 
   setFavorite(study: Study) {
-    this.#favorites.update(favorites => [...(favorites ?? []), study]);
+    this.#favorites.update(favorites =>
+      [...(favorites ?? []), study].slice(-10)
+    );
   }
 
   removeFavorite(study: components['schemas']['Study']) {
