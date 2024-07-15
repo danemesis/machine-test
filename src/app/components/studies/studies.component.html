@@ -1,4 +1,7 @@
-<p-table [value]="studies()" styleClass="p-datatable-striped" tableStyleClass="table-auto"
+<p-table
+  [value]="studies()"
+  styleClass="p-datatable-striped"
+  tableStyleClass="table-auto"
   [tableStyle]="{ 'min-width': '50rem', 'max-width': '90vw' }">
   <ng-template pTemplate="header">
     <tr>
@@ -14,7 +17,9 @@
   </ng-template>
 
   <ng-template pTemplate="body" let-study>
-    <tr class="relative" [ngClass]="{
+    <tr
+      class="relative"
+      [ngClass]="{
         'motion-safe:animate-bounce focus:animate-none hover:animate-none bg-indigo-100':
           studyScheduledForUpdate()?.protocolSection?.identificationModule
             ?.nctId === study.protocolSection?.identificationModule?.nctId,
@@ -23,25 +28,35 @@
       <td>{{ study.protocolSection?.identificationModule?.briefTitle }}</td>
       <td>
         {{
-        study.protocolSection?.identificationModule?.organization?.fullName
+          study.protocolSection?.identificationModule?.organization?.fullName
         }}
       </td>
       <td>{{ study.protocolSection?.statusModule?.overallStatus }}</td>
-      <td></td>
-      @if (
-      studyScheduledForUpdate()?.protocolSection?.identificationModule
-      ?.nctId === study.protocolSection?.identificationModule?.nctId
-      ) {
-      <span class="absolute top-1 right-1 flex h-3 w-3">
-        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
-        <span class="relative inline-flex rounded-full h-3 w-3 bg-sky-500"></span>
-      </span>
-      }
       <td>
-        {{study.}}
-        <p-button icon="pi pi-heart" severity="help" />
-        <p-button icon="pi pi-times" severity="danger" />
+        @if (study.favorite) {
+          <p-button
+            (onClick)="removeFavorite.emit(study)"
+            icon="pi pi-times"
+            severity="danger" />
+        } @else {
+          <p-button
+            (onClick)="setFavorite.emit(study)"
+            icon="pi pi-heart"
+            severity="help" />
+        }
       </td>
+
+      @if (
+        studyScheduledForUpdate()?.protocolSection?.identificationModule
+          ?.nctId === study.protocolSection?.identificationModule?.nctId
+      ) {
+        <span class="absolute top-1 right-1 flex h-3 w-3">
+          <span
+            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
+          <span
+            class="relative inline-flex rounded-full h-3 w-3 bg-sky-500"></span>
+        </span>
+      }
     </tr>
   </ng-template>
 </p-table>

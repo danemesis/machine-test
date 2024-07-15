@@ -6,6 +6,7 @@ import { KnobModule } from 'primeng/knob';
 import { TableModule } from 'primeng/table';
 import {
   BehaviorSubject,
+  combineLatest,
   delay,
   filter,
   map,
@@ -18,10 +19,10 @@ import {
   timer,
   withLatestFrom,
 } from 'rxjs';
-import { components } from '../../../types/clinicaltrials';
 import { StudiesListComponent } from '../../components/studies/studies.component';
 import { ClinicalTrialService } from '../../services/clinical-trials.service';
 import { ClinicalTrialFavoriteService } from '../../services/favorite.service';
+import { Study } from '../../types/study';
 
 @Component({
   selector: 'app-home',
@@ -46,17 +47,15 @@ export class HomeComponent implements AfterViewInit {
   readonly #PAGE_SIZE = 10;
   readonly #UPDATE_TIMEOUT = 5_000;
 
-  #studies$$ = new BehaviorSubject<components['schemas']['Study'][]>([]);
-  studies$ = this.#studies$$.asObservable().pipe(
-    map(studies =>
-      studies.map(study => ({
-        ...study,
-        favorite: this.clinicalTrialFavoriteService.isFavorite(study),
-      }))
-    )
+  #studies$$ = new BehaviorSubject<Study[]>([]);
+  studies$ = combineLatest([
+    this.#studies$$.asObservable(),
+    this.clinicalTrialFavoriteService.getFavorites$(),
+  ]).pipe(
+    map(([studies]) => this.clinicalTrialFavoriteService.markFavorites(studies))
   );
 
-  #trigger$ = this.#studies$$.pipe(
+  #trigger$ = this.#studies$$.asObservable().pipe(
     filter(studies => studies.length > 0),
     take(1),
     switchMap(() => timer(0, this.#UPDATE_TIMEOUT)),
@@ -68,19 +67,12 @@ export class HomeComponent implements AfterViewInit {
     switchMap((studyCount: number) =>
       this.#studies$$
         .asObservable()
-        .pipe(
-          map((studies): [number, components['schemas']['StudyList']] => [
-            studyCount,
-            studies,
-          ])
-        )
+        .pipe(map((studies): [number, Study[]] => [studyCount, studies]))
     ),
-    map(
-      ([studyCount, studies]: [number, components['schemas']['StudyList']]) => {
-        const studyPositionBeingUpdated = studyCount % 10;
-        return studies[studyPositionBeingUpdated];
-      }
-    ),
+    map(([studyCount, studies]: [number, Study[]]) => {
+      const studyPositionBeingUpdated = studyCount % 10;
+      return studies[studyPositionBeingUpdated] as Study;
+    }),
     shareReplay(1)
   );
 

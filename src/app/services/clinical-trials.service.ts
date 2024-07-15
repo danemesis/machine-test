@@ -1,7 +1,7 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { map, of, tap } from 'rxjs';
-import { components } from '../../types/clinicaltrials';
 import { ApiClinicalTrialServices } from '../api/clinical-trial.service';
+import { Study } from '../types/study';
 import { ClinicalTrialFavoriteService } from './favorite.service';
 
 @Injectable()
@@ -10,7 +10,7 @@ export class ClinicalTrialService {
   #clinicalTrialFavoriteService = inject(ClinicalTrialFavoriteService);
 
   #nextPageToken = signal('');
-  #cachedStudies = signal<components['schemas']['Study'][] | null>(null);
+  #cachedStudies = signal<Study[] | null>(null);
 
   getStudies(params?: Parameters<ApiClinicalTrialServices['getStudies']>[0]) {
     return this.#apiClinicalTrial.getStudies(params).pipe(
@@ -45,7 +45,7 @@ export class ClinicalTrialService {
       );
   }
 
-  #getOneAndCacheStudies(studies: components['schemas']['Study'][]) {
+  #getOneAndCacheStudies(studies: Study[]) {
     const [returnStudy, ...restStudies] = studies;
     this.#cachedStudies.set(restStudies);
 

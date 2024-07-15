@@ -1,13 +1,16 @@
+import { Component, inject } from '@angular/core';
+import { StudiesListComponent } from '../../components/studies/studies.component';
+import { ClinicalTrialFavoriteService } from '../../services/favorite.service';
 import { AsyncPipe } from '@angular/common';
-import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-favorites',
   standalone: true,
-  imports: [
-    AsyncPipe,
-    //
-  ],
   templateUrl: './favorites.component.html',
+  imports: [AsyncPipe, StudiesListComponent],
 })
-export class FavoritesComponent {}
+export class FavoritesComponent {
+  clinicalTrialFavoriteService = inject(ClinicalTrialFavoriteService);
+
+  studies$ = this.clinicalTrialFavoriteService.getFavorites$();
+}

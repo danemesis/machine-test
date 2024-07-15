@@ -7,10 +7,10 @@ import {
   input,
   Output,
 } from '@angular/core';
-import { TableModule } from 'primeng/table';
-import { components } from '../../../types/clinicaltrials';
-import { ClinicalTrialService } from '../../services/clinical-trials.service';
 import { ButtonModule } from 'primeng/button';
+import { TableModule } from 'primeng/table';
+import { ClinicalTrialService } from '../../services/clinical-trials.service';
+import { Study } from '../../types/study';
 
 @Component({
   selector: 'app-studies',
@@ -27,14 +27,14 @@ import { ButtonModule } from 'primeng/button';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StudiesListComponent {
-  studies = input.required<components['schemas']['StudyList']>();
-  studyScheduledForUpdate = input<components['schemas']['Study'] | null>();
+  studies = input.required<Study[]>();
+  studyScheduledForUpdate = input<Study | null>();
 
   @Output()
-  setFavorite = new EventEmitter<components['schemas']['Study']>();
+  setFavorite = new EventEmitter<Study>();
 
   @Output()
-  removeFavorite = new EventEmitter<components['schemas']['Study']>();
+  removeFavorite = new EventEmitter<Study>();
 
   studiesInt = computed(() =>
     this.studies().map(

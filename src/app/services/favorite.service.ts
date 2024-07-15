@@ -1,10 +1,10 @@
 import { DOCUMENT } from '@angular/common';
-import { HostListener, inject, Injectable, signal } from '@angular/core';
-import { fromEvent } from 'rxjs';
+import { inject, Injectable, signal } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
+import { distinctUntilChanged, fromEvent, map } from 'rxjs';
 import { components } from '../../types/clinicaltrials';
 import { studyEqual } from '../shared/studies/equal';
 import { Study } from '../types/study';
-import { toObservable } from '@angular/core/rxjs-interop';
 
 const LS_FAVORITE_KEY = 'LS_FAVORITE_KEY';
 
@@ -14,38 +14,31 @@ const LS_FAVORITE_KEY = 'LS_FAVORITE_KEY';
 export class ClinicalTrialFavoriteService {
   #documentRef = inject(DOCUMENT);
 
-  #favorites = signal<components['schemas']['Study'][] | null>(null);
+  #favorites = signal<Study[]>([]);
   // this is additional (non-essential API) for Signal-Observable bridge
-  #favorites$ = toObservable(this.#favorites);
-
-  /** @TODO @FIXME VISIBILITYCHANGE(START) is not being called. Why? */
-  @HostListener('document:visibilitychange', ['$event'])
-  visibilitychange(ev: any) {
-    console.log('test vi', ev);
-  }
+  #favorites$ = toObservable(this.#favorites).pipe(
+    map(studies => studies.map(study => ({ ...study, favorite: true })))
+  );
 
   constructor() {
     fromEvent(this.#documentRef, 'visibilitychange')
-      // .pipe(distinctUntilChanged())
-      .subscribe(v => console.log('visibilitychange', v));
-
-    document.addEventListener('visibilitychange', () => {
-      console.log(document.hidden);
-    });
+      .pipe(distinctUntilChanged())
+      .subscribe(() => {
+        localStorage.setItem(
+          LS_FAVORITE_KEY,
+          JSON.stringify(this.#favorites())
+        );
+      });
   }
-  /**
-   * VISIBILITYCHANGE(END)
-   */
 
   getFavorites$() {
-    if (this.#favorites()) {
+    if (this.#favorites().length > 0) {
       return this.#favorites$;
     }
 
     const storedItems = localStorage.getItem(LS_FAVORITE_KEY);
     try {
       this.#favorites.set(JSON.parse(storedItems ?? '[]'));
-      return this.#favorites();
     } catch (err) {
       console.error(
         'Something went wrong while trying to get favorites studies',
@@ -53,27 +46,19 @@ export class ClinicalTrialFavoriteService {
       );
     }
 
-    return [];
+    return this.#favorites$;
   }
 
-  setFavorite(study: components['schemas']['Study']) {
+  setFavorite(study: Study) {
     this.#favorites.update(favorites => [...(favorites ?? []), study]);
-    /** @TODO save data once before unload through visibility change  */
-    localStorage.setItem(
-      LS_FAVORITE_KEY,
-      JSON.stringify(this.#favorites()?.concat(study))
-    );
   }
 
   removeFavorite(study: components['schemas']['Study']) {
-    this.#favorites.update(favorites => [
-      ...(favorites ?? []).filter(favorite => studyEqual(favorite, study)),
-    ]);
-    /** @TODO save data once before unload through visibility change  */
-    localStorage.setItem(
-      LS_FAVORITE_KEY,
-      JSON.stringify(this.#favorites()?.concat(study))
-    );
+    this.#favorites.update(favorites => {
+      return [
+        ...(favorites ?? []).filter(favorite => !studyEqual(favorite, study)),
+      ];
+    });
   }
 
   isFavorite(study: components['schemas']['Study']) {
@@ -93,8 +78,11 @@ export class ClinicalTrialFavoriteService {
   }
 
   markFavorites(studies: components['schemas']['Study'][]): Study[] {
+    // Set is to keep O(2n) complexity
     const favoritesSet = new Set(
-      studies.map(study => study.protocolSection?.identificationModule?.nctId)
+      this.#favorites().map(
+        study => study.protocolSection?.identificationModule?.nctId
+      )
     );
     return studies.map(study => ({
       ...study,
