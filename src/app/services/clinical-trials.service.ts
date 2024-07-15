@@ -1,5 +1,5 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { map, tap } from 'rxjs';
+import { map, of, tap } from 'rxjs';
 import { components } from '../../types/clinicaltrials';
 import { ApiClinicalTrialServices } from '../api/clinical-trial.service';
 
@@ -25,7 +25,7 @@ export class ClinicalTrialService {
   getNextStudy() {
     const cachedStudies = this.#cachedStudies();
     if (cachedStudies && cachedStudies.length > 0) {
-      return this.#getOneAndCacheStudies(cachedStudies);
+      return of(this.#getOneAndCacheStudies(cachedStudies));
     }
 
     return this.#apiClinicalTrial
