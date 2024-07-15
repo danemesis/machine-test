@@ -1,13 +1,11 @@
 import { TestBed } from '@angular/core/testing';
 import { AppComponent } from './app.component';
 
+import { ActivatedRoute } from '@angular/router';
 import { throttleTime } from 'rxjs';
 import { TestScheduler } from 'rxjs/testing';
 
 const testScheduler = new TestScheduler((actual, expected) => {
-  // asserting the two objects are equal - required
-  // for TestScheduler assertions to work via your test framework
-  // e.g. using chai.
   expect(actual).toEqual(expected);
 });
 
@@ -29,6 +27,12 @@ describe('AppComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [AppComponent],
+      providers: [
+        {
+          provide: ActivatedRoute,
+          useValue: {},
+        },
+      ],
     }).compileComponents();
   });
 
@@ -41,6 +45,7 @@ describe('AppComponent', () => {
   it(`should have the 'machine-test' title`, () => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.componentInstance;
+
     expect(app.title).toEqual('Machine Test');
   });
 
