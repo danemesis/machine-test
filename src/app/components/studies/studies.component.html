@@ -1,5 +1,7 @@
 {{ studyScheduledForUpdate()?.protocolSection?.identificationModule?.nctId }}
 
+{{ studiesInt() }}
+
 <p-table [value]="studies()" [tableStyle]="{ 'min-width': '50rem' }">
   <ng-template pTemplate="header">
     <tr>

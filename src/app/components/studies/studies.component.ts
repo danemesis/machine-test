@@ -1,4 +1,9 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  input,
+} from '@angular/core';
 import { TableModule } from 'primeng/table';
 import { components } from '../../../types/clinicaltrials';
 import { ClinicalTrialService } from '../../services/clinical-trials.service';
@@ -19,4 +24,10 @@ import { CommonModule } from '@angular/common';
 export class StudiesListComponent {
   studies = input.required<components['schemas']['StudyList']>();
   studyScheduledForUpdate = input<components['schemas']['Study'] | null>();
+
+  studiesInt = computed(() =>
+    this.studies().map(
+      study => study.protocolSection?.identificationModule?.nctId
+    )
+  );
 }

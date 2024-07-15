@@ -15,7 +15,6 @@ import {
   switchMap,
   take,
   takeWhile,
-  tap,
   timer,
   withLatestFrom,
 } from 'rxjs';
@@ -50,23 +49,37 @@ export class HomeComponent implements AfterViewInit {
     filter(studies => studies.length > 0),
     take(1),
     switchMap(() => timer(0, this.#UPDATE_TIMEOUT)),
-    tap(v => console.log('TRIGGER', v)),
     shareReplay(1)
   );
 
   studyScheduledForUpdate$ = this.#trigger$.pipe(
-    withLatestFrom(this.studies$$),
-    map(([studyCount, studies]) => {
-      const studyPositionBeingUpdated = studyCount % 10;
-      console.log(
-        studyCount,
-        studyPositionBeingUpdated,
-        studies,
-        studies[studyPositionBeingUpdated]
-      );
+    switchMap((studyCount: number) =>
+      this.studies$$
+        .asObservable()
+        .pipe(
+          map((studies): [number, components['schemas']['StudyList']] => [
+            studyCount,
+            studies,
+          ])
+        )
+    ),
+    map(
+      ([studyCount, studies]: [number, components['schemas']['StudyList']]) => {
+        const studyPositionBeingUpdated = studyCount % 10;
+        // console.log(
+        //   studyCount,
+        //   studyPositionBeingUpdated,
+        //   studies,
+        //   studies.some(
+        //     study => study.protocolSection?.identificationModule?.nctId
+        //   ),
+        //   studies[studyPositionBeingUpdated].protocolSection
+        //     ?.identificationModule?.nctId
+        // );
 
-      return studies[studyPositionBeingUpdated];
-    }),
+        return studies[studyPositionBeingUpdated];
+      }
+    ),
     shareReplay(1)
   );
 
@@ -112,6 +125,7 @@ export class HomeComponent implements AfterViewInit {
             map(() => newUpdatedStudiesList)
           )
         )
+        // tap(v => console.log('newUpdatedStudiesList', v))
       )
       .subscribe(studies => this.studies$$.next(studies));
   }
