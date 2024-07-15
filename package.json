@@ -8,7 +8,9 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "test:cicd": "ng test --browsers=ChromeHeadless --watch=false",
-    "lint": "ng lint"
+    "lint": "ng lint",
+    "codegen-trials-api:local": "npx openapi-typescript ./docs/ctg-oas-v2.yaml -o ./src/types/clinicaltrials.d.ts",
+    "codegen-trials-api:remote": "npx openapi-typescript https://clinicaltrials.gov/api/oas/v2 -o ./src/types/clinicaltrials.d.ts"
   },
   "private": true,
   "dependencies": {
@@ -31,18 +33,23 @@
     "@angular-devkit/build-angular": "^18.1.0",
     "@angular/cli": "^18.1.0",
     "@angular/compiler-cli": "^18.1.0",
+    "@commitlint/cli": "^19.3.0",
+    "@commitlint/config-conventional": "^19.2.2",
     "@types/jasmine": "~5.1.0",
     "angular-eslint": "18.1.0",
     "autoprefixer": "^10.4.19",
     "eslint": "^9.6.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.1.3",
+    "husky": "^9.0.11",
     "jasmine-core": "~5.1.0",
     "karma": "~6.4.0",
     "karma-chrome-launcher": "~3.2.0",
     "karma-coverage": "~2.2.0",
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
+    "lint-staged": "^15.2.7",
+    "openapi-typescript": "^7.0.2",
     "postcss": "^8.4.39",
     "postcss-import": "^16.1.0",
     "prettier": "^3.3.3",
@@ -50,5 +57,18 @@
     "tailwindcss": "^3.4.4",
     "typescript": "~5.5.2",
     "typescript-eslint": "8.0.0-alpha.38"
+  },
+  "lint-staged": {
+    "**/*.ts": [
+      "eslint --fix"
+    ],
+    "*.{ts,scss,css,html,json,js}": [
+      "prettier --write"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
   }
 }

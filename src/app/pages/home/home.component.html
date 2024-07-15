@@ -1,0 +1,25 @@
+<p-table
+  [value]="(studies$ | async) ?? []"
+  [tableStyle]="{ 'min-width': '50rem' }">
+  <ng-template pTemplate="header">
+    <tr>
+      <th>nctId</th>
+      <th>briefTitle</th>
+      <th>organization</th>
+      <th>overallStatus</th>
+    </tr>
+  </ng-template>
+
+  <ng-template pTemplate="body" let-study>
+    <tr>
+      <td>{{ study.protocolSection?.identificationModule?.nctId }}</td>
+      <td>{{ study.protocolSection?.identificationModule?.briefTitle }}</td>
+      <td>
+        {{
+          study.protocolSection?.identificationModule?.organization?.fullName
+        }}
+      </td>
+      <td>{{ study.protocolSection?.statusModule?.overallStatus }}</td>
+    </tr>
+  </ng-template>
+</p-table>
