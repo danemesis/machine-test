@@ -3,18 +3,40 @@ import { TestBed } from '@angular/core/testing';
 import { throttleTime } from 'rxjs';
 import { TestScheduler } from 'rxjs/testing';
 import { HomeComponent } from './home.component';
+import { ClinicalTrialService } from '../../services/clinical-trials.service';
+import { ClinicalTrialFavoriteService } from '../../services/favorite.service';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 describe('HomeComponent', () => {
   let testScheduler: TestScheduler;
 
   beforeEach(async () => {
-    new TestScheduler((actual, expected) => {
+    testScheduler = new TestScheduler((actual, expected) => {
       expect(actual).toEqual(expected);
     });
 
+    const clinicalTrialServiceSpy = jasmine.createSpyObj(
+      'ClinicalTrialService',
+      ['getStudies', 'getNextStudy']
+    );
+
+    const clinicalTrialFavoriteServiceSpy = jasmine.createSpyObj(
+      'ClinicalTrialFavoriteService',
+      ['getFavorites$', 'markFavorites', 'setFavorite', 'removeFavorite']
+    );
+
     await TestBed.configureTestingModule({
-      imports: [HomeComponent],
-      providers: [],
+      imports: [HomeComponent, HttpClientTestingModule],
+      providers: [
+        {
+          provide: ClinicalTrialService,
+          useValue: clinicalTrialServiceSpy,
+        },
+        {
+          provide: ClinicalTrialFavoriteService,
+          useValue: clinicalTrialFavoriteServiceSpy,
+        },
+      ],
     }).compileComponents();
   });
 
